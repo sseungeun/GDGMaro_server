@@ -56,6 +56,7 @@ public class GooglePlaceClient {
                 .queryParam("radius", 5000)  // Search radius in meters
                 .queryParam("type", "hospital")
                 .queryParam("key", apiKey)
+                .queryParam("language", "ko")
                 .toUriString();
 
         // Fetch hospital search results from Google Places API
@@ -91,7 +92,9 @@ public class GooglePlaceClient {
         // Build Place Details API URL
         String url = "https://maps.googleapis.com/maps/api/place/details/json"
                 + "?place_id=" + placeId
-                + "&key=" + apiKey;
+                + "&key=" + apiKey
+                + "&language=ko";
+
 
         try {
             GooglePlaceDetailResponse response = restTemplate.getForObject(url, GooglePlaceDetailResponse.class);

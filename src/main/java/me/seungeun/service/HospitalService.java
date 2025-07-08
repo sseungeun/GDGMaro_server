@@ -64,17 +64,8 @@ public class HospitalService {
                         String mappedName = hospitalNameMap.getOrDefault(originalName, originalName);
                         String googleName = normalize(mappedName);
 
-                        VaccineInfo match = finalVaccineInfos.stream()
-                                .filter(info -> {
-                                    String googleNameNorm = normalize(mappedName);
-                                    String publicNameNorm = normalize(info.getCenterName());
+                        VaccineInfo match = findClosestMatch(mappedName, finalVaccineInfos);
 
-                                    log.debug("Comparing hospital names - Google: {}, Public: {}", googleNameNorm, publicNameNorm);
-
-                                    return googleNameNorm.contains(publicNameNorm) || publicNameNorm.contains(googleNameNorm);
-                                })
-                                .findFirst()
-                                .orElse(null);
 
                         if (match != null && match.getVaccines() != null && !match.getVaccines().isEmpty()) {
                             List<String> translatedVaccines = translateVaccines(match.getVaccines(), request.getLanguage());
