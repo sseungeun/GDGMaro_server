@@ -109,7 +109,7 @@ public class HospitalService {
                         VaccineInfo match = findClosestMatch(mappedName, finalVaccineInfos);
 
                         if (match != null) {
-                            List<String> translatedVaccines = translateVaccines(match.getVaccines(), request.getLanguage());
+                            List<String> translatedVaccines = translateVaccines(match.getVaccines(), targetLang);
                             h.setVaccines(translatedVaccines);
                         } else {
                             h.setVaccines(List.of(translatedContactMessage));
@@ -125,6 +125,8 @@ public class HospitalService {
                 })
                 .limit(10)
                 .collect(Collectors.toList());
+
+
     }
 
     // Get detailed hospital info including vaccine info and translations
@@ -222,8 +224,25 @@ public class HospitalService {
     // Translate list of vaccine names to target language
     private List<String> translateVaccines(List<String> vaccines, String targetLang) {
         if (vaccines == null || vaccines.isEmpty()) return List.of();
+
         return vaccines.stream()
-                .map(v -> translateClient.translate(v, targetLang))
+                .map(v -> translateVaccineName(v, targetLang)) // ✅ 개선된 메서드 사용
                 .collect(Collectors.toList());
     }
+    private String translateVaccineName(String name, String targetLang) {
+        if (name == null || name.isBlank()) return "";
+
+        // 괄호가 포함된 경우: "인플루엔자(Flu)" → "Influenza (Flu)"
+        if (name.contains("(") && name.contains(")")) {
+            String left = name.substring(0, name.indexOf("(")).trim();
+            String right = name.substring(name.indexOf("(") + 1, name.indexOf(")")).trim();
+
+            String translatedLeft = translateClient.translate(left, targetLang);
+            return translatedLeft + " (" + right + ")";
+        }
+
+        // 괄호가 없는 경우: 그냥 번역
+        return translateClient.translate(name, targetLang);
+    }
+
 }
