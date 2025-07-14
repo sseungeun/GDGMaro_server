@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.seungeun.dto.HospitalDto;
 import me.seungeun.dto.publicdata.LocationRequestDto;
 import me.seungeun.dto.PlaceIdRequestDto;
-import me.seungeun.service.HospitalService;
+import me.seungeun.service.HospitalSearchService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class HospitalController {
-    private final HospitalService hospitalService; // Service for handling hospital logic
+    private final HospitalSearchService hospitalSearchService; // Service for handling hospital logic
 
     /**
      * Handles request for list of nearby hospitals.
@@ -26,7 +26,7 @@ public class HospitalController {
     @PostMapping("/nearby")
     public ResponseEntity<List<HospitalDto>> getNearbyHospitals(@RequestBody LocationRequestDto request) {
         log.info("Received nearby hospital request: {}", request);
-        return ResponseEntity.ok(hospitalService.findNearbyHospitals(request));
+        return ResponseEntity.ok(hospitalSearchService.findNearbyHospitals(request));
     }
 
     /**
@@ -41,7 +41,7 @@ public class HospitalController {
             @RequestParam String targetLang) {
 
         log.info("Received translated nearby hospitals request: {}, lang={}", request, targetLang);
-        return ResponseEntity.ok(hospitalService.findTranslatedNearbyHospitals(request, targetLang));
+        return ResponseEntity.ok(hospitalSearchService.findTranslatedNearbyHospitals(request, targetLang));
     }
 
     /**
@@ -52,21 +52,16 @@ public class HospitalController {
     @PostMapping("/details")
     public ResponseEntity<HospitalDto> getHospitalDetails(@RequestBody PlaceIdRequestDto request) {
         log.info("Received hospital details request: {}", request);
-        return ResponseEntity.ok(hospitalService.getHospitalDetails(request));
+        return ResponseEntity.ok(hospitalSearchService.getHospitalDetailByPlaceId(request));
     }
 
-    /**
-     * Handles request for translated details of a specific hospital.
-     * @param request DTO containing placeId
-     * @param targetLang target language code
-     * @return translated hospital details and HTTP 200 response
-     */
     @PostMapping("/details/translated")
     public ResponseEntity<?> getTranslatedHospitalDetails(
             @RequestBody PlaceIdRequestDto request,
             @RequestParam String targetLang) {
 
         log.info("Received translated hospital details request: {}, lang={}", request, targetLang);
-        return ResponseEntity.ok(hospitalService.getTranslatedHospitalDetails(request, targetLang));
+        return ResponseEntity.ok(hospitalSearchService.getTranslatedHospitalDetail(request, targetLang));
     }
+
 }
