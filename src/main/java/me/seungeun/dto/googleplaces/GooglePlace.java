@@ -22,6 +22,7 @@ public class GooglePlace {
     @JsonProperty("opening_hours")
     private OpeningHours openingHours;  // Opening hours info
 
+
     @Data
     public static class OpeningHours {
         @JsonProperty("weekday_text")

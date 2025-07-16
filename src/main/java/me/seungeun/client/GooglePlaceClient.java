@@ -6,6 +6,7 @@ import me.seungeun.cache.VaccineHospitalCacheService;
 import me.seungeun.cache.VaccineHospitalCacheService.VaccineInfo;
 import me.seungeun.dto.HospitalDto;
 import me.seungeun.dto.googleplaces.GooglePlace;
+import me.seungeun.dto.googleplaces.GooglePlaceDetail;
 import me.seungeun.dto.googleplaces.GooglePlacesResponse;
 import me.seungeun.dto.googleplaces.GooglePlaceDetailResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -90,10 +91,13 @@ public class GooglePlaceClient {
     public HospitalDto getPlaceDetails(String placeId) {
 
         // Build Place Details API URL
-        String url = "https://maps.googleapis.com/maps/api/place/details/json"
-                + "?place_id=" + placeId
-                + "&key=" + apiKey
-                + "&language=ko";
+        String url = UriComponentsBuilder.fromHttpUrl("https://maps.googleapis.com/maps/api/place/details/json")
+                .queryParam("place_id", placeId)
+                .queryParam("key", apiKey)
+                .queryParam("language", "ko")
+                .queryParam("fields", "place_id,name,formatted_address,formatted_phone_number,geometry,opening_hours")
+                .toUriString();
+
 
 
         try {
@@ -123,12 +127,10 @@ public class GooglePlaceClient {
      * @param place GooglePlace object from API
      * @return HospitalDto containing mapped hospital and vaccine info
      */
-    private HospitalDto convertToHospitalDto(GooglePlace place) {
-        // Map English hospital name to Korean equivalent if available
+    private HospitalDto convertToHospitalDto(GooglePlaceDetail place) {
         String mappedName = hospitalNameMap.getOrDefault(place.getName(), place.getName());
         mappedName = normalize(mappedName);
 
-        // Retrieve cached vaccine info by normalized hospital name
         VaccineInfo cached = vaccineHospitalCacheService.getBestMatchingHospital(mappedName);
 
         List<String> vaccines;
@@ -140,17 +142,17 @@ public class GooglePlaceClient {
 
         log.info("Vaccine info for hospital {}: {}", place.getName(), vaccines);
 
-        // Safely extract opening hours weekday text if present
         String weekdayText = null;
         if (place.getOpeningHours() != null && place.getOpeningHours().getWeekdayText() != null) {
             weekdayText = String.join(", ", place.getOpeningHours().getWeekdayText());
         }
 
-        // Build and return HospitalDto with aggregated info
+
+
         return HospitalDto.builder()
-                .placeId(place.getPlace_id())
+                .placeId(place.getPlaceId())
                 .name(place.getName())
-                .address(place.getVicinity())
+                .address(place.getFormatted_address())
                 .phone(place.getFormattedPhoneNumber())
                 .lat(place.getGeometry().getLocation().getLat())
                 .lng(place.getGeometry().getLocation().getLng())

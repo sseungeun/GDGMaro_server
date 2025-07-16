@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class GooglePlaceDetailResponse {
-    private GooglePlace result;
+    private GooglePlaceDetail result;
     private String status;
+
 }
