@@ -77,17 +77,26 @@ public class HospitalSearchService {
 
     public HospitalDto getTranslatedHospitalDetail(PlaceIdRequestDto request, String lang) {
         HospitalDto detail = googlePlaceClient.getPlaceDetails(request.getPlaceId());
-        VaccineInfo cached = vaccineHospitalCacheService.getBestMatchingHospital(detail.getName());
-
-        if (cached != null && cached.getVaccines() != null) {
-            detail.setVaccines(hospitalTranslator.translateVaccines(cached.getVaccines(), lang));
-        } else {
-            detail.setVaccines(List.of(hospitalTranslator.translate("병원에 문의해주세요", lang)));
-        }
 
         try {
+            double lat = detail.getLat();
+            double lng = detail.getLng();
+
+            // ✅ nearby와 동일하게 근처 병원 기반 캐시 목록 가져오기
+            List<VaccineInfo> vaccineHospitals = vaccineHospitalCacheService.fetchHospitalsByLocation(lat, lng);
+
+            // ✅ 유사도 기반 이름 매칭
+            VaccineInfo matched = HospitalNameMatcher.findClosestMatch(detail.getName(), vaccineHospitals);
+
+            if (matched != null && matched.getVaccines() != null && !matched.getVaccines().isEmpty()) {
+                detail.setVaccines(hospitalTranslator.translateVaccines(matched.getVaccines(), lang));
+            } else {
+                detail.setVaccines(List.of(hospitalTranslator.translate("병원에 문의해주세요", lang)));
+            }
+
             Map<String, String> translated = hospitalTranslator.translateHospital(detail, lang);
             return HospitalDto.from(detail, translated);
+
         } catch (Exception e) {
             log.error("Hospital detailed translation failed: {}", detail.getName(), e);
             return HospitalDto.from(detail, Map.of("name", detail.getName()));
