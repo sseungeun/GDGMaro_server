@@ -26,11 +26,14 @@ public class CallScript {
 
         // Extracts the "question" field from the payload
         String userQuestion = payload.get("question");
+        String lang = payload.get("lang");
 
         // Sends the extracted question to the FastAPI server and receives a structured response
-        FastApiResponse response = fastApiClient.generateResponse(userQuestion);
+        FastApiResponse response = fastApiClient.generateResponse(userQuestion,lang);
 
         System.out.println("Answers size: " + (response.getAnswers() == null ? 0 : response.getAnswers().size()));
+        System.out.println("User Question: " + userQuestion);
+        System.out.println("Lang: " + lang);
 
         return ResponseEntity.ok(response);
     }

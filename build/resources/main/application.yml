@@ -9,10 +9,10 @@ server:
   port: 8081
 google:
     api:
-      key: AIzaSyDS2G7j9kFpcvdi0IiwRWTGGx5gcC3CYDw
+      key: AIzaSyATRZpqPJPanwrTBQUBrSlRx9XJwj2D538
 translate:
     api:
-      key: AIzaSyDfH8g6rPMC3fP7xz4LViYQDPVgsTNLZQY
+      key: AIzaSyC2NXC1aVpGEHUSSsdCmOrcYPyXs6m-Qj4
 spring:
   servlet:
     multipart:

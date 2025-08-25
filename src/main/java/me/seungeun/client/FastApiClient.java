@@ -20,7 +20,7 @@ public class FastApiClient {
     @Value("${fastapi.model.url}")
     private String fastApiUrl;
 
-    public FastApiResponse generateResponse(String userQuestion) {
+    public FastApiResponse generateResponse(String userQuestion,String lang) {
         // 1. Set HTTP request headers: Content-Type set to JSON
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -28,7 +28,7 @@ public class FastApiClient {
         // 2. Create request body: include all required fields for FastAPI
         Map<String, String> request = Map.of(
                 "user_question", userQuestion,
-                "user_lang", "en"  // Mandatory language parameter required by FastAPI
+                "user_lang", lang  // Mandatory language parameter required by FastAPI
         );
 
         // 3. Combine request body and headers into HttpEntity
